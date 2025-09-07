@@ -1,0 +1,228 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "LegalMind AI MCP Server",
+    "description": "A Multi-Cloud Proxy (MCP) server for legal document analysis using AI",
+    "version": "1.0.0",
+    "contact": {
+      "name": "LegalMind AI",
+      "email": "shourya758@gmail.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://ztaip-y087xwfe-4xp4r634bq-uc.a.run.app/mcp",
+      "description": "Cequence AI Gateway MCP Server"
+    },
+    {
+      "url": "http://localhost:8000/mcp",
+      "description": "Local development server"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health check endpoint",
+        "description": "Check if the MCP server is running and healthy",
+        "tags": ["Health"],
+        "responses": {
+          "200": {
+            "description": "Server is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/analyze/upload": {
+      "post": {
+        "summary": "Upload a legal document",
+        "description": "Upload a PDF document for analysis. Returns a document ID for subsequent queries.",
+        "tags": ["Document Analysis"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "PDF file to upload"
+                  }
+                },
+                "required": ["file"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Document uploaded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - invalid file type or missing file",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error during file processing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/analyze/query": {
+      "post": {
+        "summary": "Query a document",
+        "description": "Ask questions about a previously uploaded document using natural language",
+        "tags": ["Document Analysis"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QueryRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Query processed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - missing required fields",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Document not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error during analysis",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "UploadResponse": {
+        "type": "object",
+        "properties": {
+          "doc_id": {
+            "type": "string",
+            "description": "Unique identifier for the uploaded document",
+            "example": "09daca1f-e19a-468a-a5ab-3c033030c422"
+          }
+        },
+        "required": ["doc_id"]
+      },
+      "QueryRequest": {
+        "type": "object",
+        "properties": {
+          "doc_id": {
+            "type": "string",
+            "description": "Document ID from upload response",
+            "example": "09daca1f-e19a-468a-a5ab-3c033030c422"
+          },
+          "query": {
+            "type": "string",
+            "description": "Natural language question about the document",
+            "example": "What is the grace period for premium payment?"
+          }
+        },
+        "required": ["doc_id", "query"]
+      },
+      "QueryResponse": {
+        "type": "object",
+        "properties": {
+          "response": {
+            "type": "string",
+            "description": "AI-generated response to the query",
+            "example": "The grace period for premium payment is 30 days from the due date as specified in clause 5.2 of the contract."
+          }
+        },
+        "required": ["response"]
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "detail": {
+            "type": "string",
+            "description": "Error message",
+            "example": "Document not found"
+          }
+        },
+        "required": ["detail"]
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Health",
+      "description": "Health check endpoints"
+    },
+    {
+      "name": "Document Analysis",
+      "description": "Document upload and analysis endpoints"
+    }
+  ]
+}

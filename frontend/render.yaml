@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: agentlegal-frontend
+    env: static
+    plan: free
+    buildCommand: npm install && npm run build
+    staticPublishPath: build
+    envVars:
+      - key: REACT_APP_MCP_URL
+        sync: false
+      - key: REACT_APP_API_KEY
+        sync: false

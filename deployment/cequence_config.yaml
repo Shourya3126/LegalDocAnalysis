@@ -1,0 +1,15 @@
+app: LegalMind
+deployment_mode: Cloud
+protection: Disabled
+production_mode: Non-Prod
+origin: https://legalmind.cequence.ai/v1
+mcp_endpoint: https://ztaip-y087xwfe-4xp4r634bq-uc.a.run.app/mcp
+sse_endpoint: https://ztaip-y087xwfe-4xp4r634bq-uc.a.run.app/sse
+auth:
+  type: oauth2_client_credentials
+  token_scope: Global
+  token_name: Agent Integration
+notes:
+  - SSE is deprecated; use streamable HTTP when available
+  - First-time access prompts user consent; tokens cached and auto-refreshed
+
